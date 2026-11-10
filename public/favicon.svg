@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient (Polydictionary Electric Blue) -->
+    <linearGradient id="pdBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3872FF"/>
+      <stop offset="60%" stop-color="#2962FF"/>
+      <stop offset="100%" stop-color="#1244D4"/>
+    </linearGradient>
+
+    <!-- Golden Bookmark Gradient -->
+    <linearGradient id="pdRibbon" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="35%" stop-color="#FFCA28"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </linearGradient>
+
+    <!-- Page Depth Gradient -->
+    <linearGradient id="pdPageDepth" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#90CAF9"/>
+    </linearGradient>
+
+    <!-- Shadow for Depth -->
+    <filter id="pdShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="1.8" flood-opacity="0.35" flood-color="#051238"/>
+    </filter>
+  </defs>
+
+  <!-- 1. Squircle Canvas -->
+  <rect width="64" height="64" rx="14" fill="url(#pdBg)"/>
+  
+  <!-- Subtle Top Rim Highlight -->
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1.2"/>
+
+  <!-- 2. Hardcover Base Rim (Volume Depth) -->
+  <path d="M9 43.5 C16 40.5 24 40 32 42.5 C40 40 48 40.5 55 43.5 L55 46.5 C48 43.5 40 43 32 45.5 C24 43 16 43.5 9 46.5 Z" 
+        fill="#09257A" opacity="0.75"/>
+
+  <!-- Under-pages / Paper Stack Thickness -->
+  <path d="M10 42 C16.5 39.5 24 39 32 41.5 C40 39 47.5 39.5 54 42 L54 43.8 C47.5 41.2 40 40.8 32 43.2 C24 40.8 16.5 41.2 10 43.8 Z" 
+        fill="url(#pdPageDepth)" opacity="0.9"/>
+
+  <!-- 3. Main Open Book Pages (White Wings) -->
+  <path d="M32 19.5 
+           C24 16 17 17 10 19 C9.4 19.2 9 19.8 9 20.5 L9 41.5 C9 42.5 9.8 43.3 10.8 43 C17 41.2 24 40.6 32 42.8 
+           C40 40.6 47 41.2 53.2 43 C54.2 43.3 55 42.5 55 41.5 L55 20.5 C55 19.8 54.6 19.2 54 19 C47 17 40 16 32 19.5 Z" 
+        fill="#FFFFFF" filter="url(#pdShadow)"/>
+
+  <!-- Spine Center Crease -->
+  <line x1="32" y1="19.5" x2="32" y2="42.8" stroke="#CFD8DC" stroke-width="1.4" stroke-linecap="round"/>
+
+  <!-- 4. Left Page: Bold Latin 'P' (Polydictionary Brand) -->
+  <path d="M16.5 25 H23.5 C26.2 25 27.8 26.6 27.8 28.8 C27.8 31 26.2 32.5 23.5 32.5 H19 V37 H16.5 V25 Z M19 27.2 V30.3 H23.2 C24.6 30.3 25.4 29.7 25.4 28.8 C25.4 27.8 24.6 27.2 23.2 27.2 H19 Z" 
+        fill="#1545D8"/>
+
+  <!-- 5. Right Page: Bold Han '文' (Language / Multilingual) -->
+  <g fill="#1545D8">
+    <!-- Top Dot -->
+    <rect x="42" y="24.8" width="2" height="2.2" rx="0.6"/>
+    <!-- Main Crossbar -->
+    <rect x="37.5" y="28" width="11" height="2" rx="0.7"/>
+    <!-- Left Sweep (撇) -->
+    <path d="M43.5 29.5 C42.8 32.5 40.8 35 37.5 36.8 L38.8 38 C42.5 36 44.5 33 45.2 29.5 Z"/>
+    <!-- Right Sweep (捺) -->
+    <path d="M41.8 31 C43.5 33 45.6 35.2 48.5 36.8 L49.5 35.4 C46.8 34 45 32.2 43.5 30 Z"/>
+  </g>
+
+  <!-- 6. Golden Ribbon Bookmark (Cascading from Center Spine) -->
+  <path d="M30 18 L34 18 L34 49 L32 46.5 L30 49 Z" 
+        fill="url(#pdRibbon)" filter="url(#pdShadow)"/>
+</svg>
