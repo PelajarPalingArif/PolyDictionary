@@ -1,6 +1,4 @@
 {
   "name": "PolyDictionary",
-  "description": "Windows desktop dictionary and multi-engine translation workstation with offline definitions, downloadable corpora, zero-cost Google & Lingva translation wrapping, and TradingView aesthetic.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "description": "Windows desktop dictionary and multi-engine translation workstation with offline definitions, downloadable corpora, zero-cost Google & Lingva translation wrapping, and TradingView aesthetic."
 }
