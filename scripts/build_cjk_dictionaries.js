@@ -244,7 +244,8 @@ async function buildChinese() {
   });
   const finalZh = zhEntries.map(({ isProper, ...rest }) => rest);
 
-  const outPath = path.join(PUBLIC_DICT_DIR, 'zh.json');
+  const outPath = path.join(PUBLIC_DICT_DIR, 'zh', 'cc-cedict', 'cc-cedict.json');
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(finalZh));
   const stat = fs.statSync(outPath);
   console.log(`✓ Chinese dictionary built: ${finalZh.length} entries, ${(stat.size / 1024 / 1024).toFixed(2)} MB -> ${outPath}`);
@@ -309,7 +310,8 @@ async function buildKorean() {
   });
   const finalKo = koEntries.map(({ isHangulHead, ...rest }) => rest);
 
-  const outPath = path.join(PUBLIC_DICT_DIR, 'ko.json');
+  const outPath = path.join(PUBLIC_DICT_DIR, 'ko', 'kengdic', 'kengdic.json');
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(finalKo));
   const stat = fs.statSync(outPath);
   console.log(`✓ Korean dictionary built: ${finalKo.length} entries, ${(stat.size / 1024 / 1024).toFixed(2)} MB -> ${outPath}`);
@@ -420,7 +422,8 @@ async function buildJapanese() {
   });
   const finalJa = jaEntries.map(({ isPriority, ...rest }) => rest);
 
-  const outPath = path.join(PUBLIC_DICT_DIR, 'ja.json');
+  const outPath = path.join(PUBLIC_DICT_DIR, 'ja', 'edict2', 'edict2.json');
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(finalJa));
   const stat = fs.statSync(outPath);
   console.log(`✓ Japanese dictionary built: ${finalJa.length} entries, ${(stat.size / 1024 / 1024).toFixed(2)} MB -> ${outPath}`);

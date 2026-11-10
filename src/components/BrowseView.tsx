@@ -135,7 +135,6 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
   const [activeEntry, setActiveEntry] = useState<DictionaryEntry | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [accent, setAccent] = useState<'US' | 'UK'>('US');
   const [copied, setCopied] = useState<boolean>(false);
 
   // Cached CJK lists
@@ -371,7 +370,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
   const handlePronounce = async () => {
     if (!activeEntry) return;
     setIsSpeaking(true);
-    await speechService.speak(activeEntry.word, activeEntry.language, accent);
+    await speechService.speak(activeEntry.word, activeEntry.language);
     setIsSpeaking(false);
   };
 
@@ -937,22 +936,23 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                   <div className="flex items-center bg-[#F0F3FA] dark:bg-[#1E222D] rounded-md border border-[#E0E3EB] dark:border-[#2A2E39] p-1">
                     <button
                       onClick={handlePronounce}
-                      title="Audio Pronunciation"
+                      title={`Audio Pronunciation (${speechService.getEngine() === 'kokoro' ? 'Kokoro Neural' : 'Browser Speech'})`}
                       className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
                         isSpeaking ? 'bg-[#2962FF] text-white animate-pulse' : 'text-[#131722] dark:text-[#D1D4DC] hover:bg-[#E0E3EB] dark:hover:bg-[#2A2E39]'
                       }`}
                     >
                       <Volume2 className="w-3.5 h-3.5 text-[#2962FF]" />
                       <span>Pronounce</span>
+                      {speechService.getEngine() === 'kokoro' && (activeEntry.language === 'en' || activeEntry.language.startsWith('en')) && (
+                        <span 
+                          className="text-[9px] px-1 py-0.2 rounded font-mono font-medium bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/25 flex items-center gap-0.5"
+                          title="Kokoro Neural"
+                        >
+                          <Sparkles className="w-2.5 h-2.5" />
+                          <span>AI</span>
+                        </span>
+                      )}
                     </button>
-                    {activeEntry.language === 'en' && (
-                      <button
-                        onClick={() => setAccent(accent === 'US' ? 'UK' : 'US')}
-                        className="px-2 py-0.5 text-[10px] font-mono text-[#787B86] hover:text-[#131722] dark:hover:text-[#D1D4DC] border-l border-[#E0E3EB] dark:border-[#2A2E39] ml-1"
-                      >
-                        {accent}
-                      </button>
-                    )}
                   </div>
 
                   <button

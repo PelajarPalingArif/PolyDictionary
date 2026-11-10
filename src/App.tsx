@@ -21,6 +21,7 @@ import {
   LanguageCode 
 } from './types/dictionary';
 import { getAllActiveEntries, getCorpusPackages } from './services/corpusStorage';
+import { speechService, TTSEngineType, KokoroVoiceId } from './services/speechService';
 
 const STORAGE_KEY_BOOKMARKS = 'polydict_bookmarks_v1';
 const STORAGE_KEY_HISTORY = 'polydict_history_v1';
@@ -44,6 +45,8 @@ export default function App() {
   const [speechRate, setSpeechRate] = useState<number>(1.0);
   const [accent, setAccent] = useState<'US' | 'UK'>('US');
   const [defaultLanguage, setDefaultLanguage] = useState<LanguageCode>('en');
+  const [ttsEngine, setTtsEngine] = useState<TTSEngineType>(() => speechService.getEngine());
+  const [kokoroVoice, setKokoroVoice] = useState<KokoroVoiceId>(() => speechService.getKokoroVoice());
 
   // Search state
   const [dictionaryQuery, setDictionaryQuery] = useState<string>('moon');
@@ -70,9 +73,23 @@ export default function App() {
       const storedSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
       if (storedSettings) {
         const parsed = JSON.parse(storedSettings);
-        if (parsed.speechRate) setSpeechRate(parsed.speechRate);
-        if (parsed.accent) setAccent(parsed.accent);
+        if (parsed.speechRate) {
+          setSpeechRate(parsed.speechRate);
+          speechService.setDefaultRate(parsed.speechRate);
+        }
+        if (parsed.accent) {
+          setAccent(parsed.accent);
+          speechService.setDefaultAccent(parsed.accent);
+        }
         if (parsed.defaultLanguage) setDefaultLanguage(parsed.defaultLanguage);
+        if (parsed.ttsEngine) {
+          setTtsEngine(parsed.ttsEngine);
+          speechService.setEngine(parsed.ttsEngine);
+        }
+        if (parsed.kokoroVoice) {
+          setKokoroVoice(parsed.kokoroVoice);
+          speechService.setKokoroVoice(parsed.kokoroVoice);
+        }
         if (parsed.isDark !== undefined) {
           setIsDark(parsed.isDark);
           if (parsed.isDark) {
@@ -152,17 +169,41 @@ export default function App() {
   // Settings updates
   const handleSpeechRateChange = (rate: number) => {
     setSpeechRate(rate);
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ speechRate: rate, accent, defaultLanguage, isDark }));
+    speechService.setDefaultRate(rate);
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ 
+      speechRate: rate, accent, defaultLanguage, isDark, ttsEngine, kokoroVoice 
+    }));
   };
 
   const handleAccentChange = (acc: 'US' | 'UK') => {
     setAccent(acc);
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ speechRate, accent: acc, defaultLanguage, isDark }));
+    speechService.setDefaultAccent(acc);
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ 
+      speechRate, accent: acc, defaultLanguage, isDark, ttsEngine, kokoroVoice 
+    }));
+  };
+
+  const handleTtsEngineChange = (engine: TTSEngineType) => {
+    setTtsEngine(engine);
+    speechService.setEngine(engine);
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ 
+      speechRate, accent, defaultLanguage, isDark, ttsEngine: engine, kokoroVoice 
+    }));
+  };
+
+  const handleKokoroVoiceChange = (voice: KokoroVoiceId) => {
+    setKokoroVoice(voice);
+    speechService.setKokoroVoice(voice);
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ 
+      speechRate, accent, defaultLanguage, isDark, ttsEngine, kokoroVoice: voice 
+    }));
   };
 
   const handleDefaultLanguageChange = (lang: LanguageCode) => {
     setDefaultLanguage(lang);
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ speechRate, accent, defaultLanguage: lang, isDark }));
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({ 
+      speechRate, accent, defaultLanguage: lang, isDark, ttsEngine, kokoroVoice 
+    }));
   };
 
   const handleResetAllData = () => {
@@ -293,6 +334,10 @@ export default function App() {
             defaultLanguage={defaultLanguage}
             onDefaultLanguageChange={handleDefaultLanguageChange}
             onResetAllData={handleResetAllData}
+            ttsEngine={ttsEngine}
+            onTtsEngineChange={handleTtsEngineChange}
+            kokoroVoice={kokoroVoice}
+            onKokoroVoiceChange={handleKokoroVoiceChange}
           />
         )}
       </main>

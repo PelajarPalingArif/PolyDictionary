@@ -22,45 +22,55 @@ interface CjkCacheItem {
 // In-memory cache for comprehensive CJK lexicons (443,000+ entries)
 const cjkLexiconCache: Record<string, CjkCacheItem> = {};
 
+const CJK_PATH_MAP: Record<'ja' | 'zh' | 'ko', string[]> = {
+  ja: ['/dict/ja/edict2/edict2.json', '/dict/ja.json'],
+  zh: ['/dict/zh/cc-cedict/cc-cedict.json', '/dict/zh.json'],
+  ko: ['/dict/ko/kengdic/kengdic.json', '/dict/ko.json'],
+};
+
 export async function loadCjkLexicon(lang: 'ja' | 'zh' | 'ko'): Promise<CjkCacheItem | null> {
   if (cjkLexiconCache[lang]) {
     return cjkLexiconCache[lang];
   }
 
-  try {
-    const resp = await fetch(`/dict/${lang}.json`);
-    if (resp.ok) {
-      const list: RawCjkEntry[] = await resp.json();
-      const map = new Map<string, RawCjkEntry>();
-      for (const item of list) {
-        const wKey = item.w.toLowerCase();
-        if (!map.has(wKey)) map.set(wKey, item);
+  const paths = CJK_PATH_MAP[lang] || [`/dict/${lang}.json`];
+  for (const path of paths) {
+    try {
+      const resp = await fetch(path);
+      if (resp.ok) {
+        const list: RawCjkEntry[] = await resp.json();
+        const map = new Map<string, RawCjkEntry>();
+        for (const item of list) {
+          const wKey = item.w.toLowerCase();
+          if (!map.has(wKey)) map.set(wKey, item);
 
-        if (item.m) {
-          const mKey = item.m.toLowerCase();
-          if (!map.has(mKey)) map.set(mKey, item);
+          if (item.m) {
+            const mKey = item.m.toLowerCase();
+            if (!map.has(mKey)) map.set(mKey, item);
+          }
+          if (item.r) {
+            const rKey = item.r.toLowerCase();
+            if (!map.has(rKey)) map.set(rKey, item);
+          }
+          if (item.h) {
+            const hKey = item.h.toLowerCase();
+            if (!map.has(hKey)) map.set(hKey, item);
+          }
+          if (item.t) {
+            const tKey = item.t.toLowerCase();
+            if (!map.has(tKey)) map.set(tKey, item);
+          }
         }
-        if (item.r) {
-          const rKey = item.r.toLowerCase();
-          if (!map.has(rKey)) map.set(rKey, item);
-        }
-        if (item.h) {
-          const hKey = item.h.toLowerCase();
-          if (!map.has(hKey)) map.set(hKey, item);
-        }
-        if (item.t) {
-          const tKey = item.t.toLowerCase();
-          if (!map.has(tKey)) map.set(tKey, item);
-        }
+        const cacheItem = { list, map };
+        cjkLexiconCache[lang] = cacheItem;
+        return cacheItem;
       }
-      const cacheItem = { list, map };
-      cjkLexiconCache[lang] = cacheItem;
-      return cacheItem;
+    } catch {
+      // Continue to fallback path
     }
-  } catch (e) {
-    console.warn(`Could not load /dict/${lang}.json`, e);
   }
 
+  console.warn(`Could not load CJK lexicon for language: ${lang}`);
   return null;
 }
 
@@ -194,7 +204,7 @@ export function getAllActiveEntries(): DictionaryEntry[] {
 }
 
 /**
- * Loads a letter chunk from /dict/{letter}.json (102,000+ words)
+ * Loads a letter chunk from /dict/en/webster/{letter}.json (102,000+ words)
  */
 export async function loadLetterChunk(letter: string): Promise<Record<string, string>> {
   const cleanLetter = letter.toLowerCase();
@@ -202,17 +212,25 @@ export async function loadLetterChunk(letter: string): Promise<Record<string, st
     return letterCache[cleanLetter];
   }
 
-  try {
-    const resp = await fetch(`/dict/${cleanLetter}.json`);
-    if (resp.ok) {
-      const data = await resp.json();
-      letterCache[cleanLetter] = data;
-      return data;
+  const paths = [
+    `/dict/en/webster/${cleanLetter}.json`,
+    `/dict/${cleanLetter}.json`
+  ];
+
+  for (const path of paths) {
+    try {
+      const resp = await fetch(path);
+      if (resp.ok) {
+        const data = await resp.json();
+        letterCache[cleanLetter] = data;
+        return data;
+      }
+    } catch {
+      // Continue to next path
     }
-  } catch (e) {
-    console.warn(`Could not load /dict/${cleanLetter}.json`, e);
   }
 
+  console.warn(`Could not load English letter chunk for '${cleanLetter}'`);
   return {};
 }
 

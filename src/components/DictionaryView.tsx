@@ -15,7 +15,8 @@ import {
   BookOpen, 
   ExternalLink, 
   Globe, 
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { DictionaryEntry, LanguageCode, BookmarkItem, SearchSuggestionItem } from '../types/dictionary';
 import { SUPPORTED_LANGUAGES } from '../data/languages';
@@ -48,8 +49,12 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [activeEntry, setActiveEntry] = useState<DictionaryEntry | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [accent, setAccent] = useState<'US' | 'UK'>('US');
   const [copied, setCopied] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState(() => speechService.getKokoroStatus());
+
+  useEffect(() => {
+    return speechService.subscribeStatus(setSpeechStatus);
+  }, []);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestionItem[]>([]);
   const [isSearchingOnline, setIsSearchingOnline] = useState(false);
@@ -125,7 +130,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
       return;
     }
     setIsSpeaking(true);
-    await speechService.speak(text, lang, accent);
+    await speechService.speak(text, lang);
     setIsSpeaking(false);
   };
 
@@ -380,7 +385,7 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                       <div className="flex items-center bg-[#FFFFFF] dark:bg-[#131722] rounded-md border border-[#E0E3EB] dark:border-[#2A2E39] p-1">
                         <button
                           onClick={() => handlePronounce(activeEntry.word, activeEntry.language)}
-                          title={`Listen to pronunciation (${accent} English)`}
+                          title={`Listen to pronunciation (${speechService.getEngine() === 'kokoro' ? 'Kokoro Neural Voice' : 'Browser Speech'})`}
                           className={`flex items-center gap-2 px-3 py-1.5 rounded transition-all ${
                             isSpeaking 
                               ? 'bg-[#2962FF] text-white animate-pulse' 
@@ -388,18 +393,19 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                           }`}
                         >
                           <Volume2 className="w-4 h-4 text-[#2962FF]" />
-                          <span className="text-xs font-semibold">Pronounce</span>
+                          <span className="text-xs font-semibold">
+                            {speechStatus.state === 'generating' ? 'Synthesizing...' : isSpeaking ? 'Playing...' : 'Pronounce'}
+                          </span>
+                          {speechService.getEngine() === 'kokoro' && (activeEntry.language === 'en' || activeEntry.language.startsWith('en')) && (
+                            <span 
+                              className="text-[9px] px-1.5 py-0.5 rounded font-mono font-medium bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/25 flex items-center gap-1"
+                              title="Kokoro 82M Neural Speech Engine"
+                            >
+                              <Sparkles className="w-2.5 h-2.5" />
+                              <span>Neural</span>
+                            </span>
+                          )}
                         </button>
-
-                        {activeEntry.language === 'en' && (
-                          <button
-                            onClick={() => setAccent(accent === 'US' ? 'UK' : 'US')}
-                            className="px-2 py-1 text-[10px] font-mono text-[#787B86] hover:text-[#131722] dark:hover:text-[#D1D4DC] border-l border-[#E0E3EB] dark:border-[#2A2E39] ml-1"
-                            title="Toggle accent"
-                          >
-                            {accent}
-                          </button>
-                        )}
                       </div>
 
                       <button

@@ -40,9 +40,9 @@ async function runTests() {
     getStructuredWordSuggestions, 
     getCorpusPackages,
     installCorpusPackage,
-    uninstallCorpusPackage 
+    uninstallCorpusPackage
   } = await import('../src/services/corpusStorage.ts');
-  const { BUNDLED_DICTIONARY_ENTRIES } = await import('../src/data/bundledCorpora.ts');
+  const bundledEntries = [];
 
   // Test 1: Check Corpus Packages
   console.log('\n[Test 1] Checking Corpus Packages metadata:');
@@ -64,7 +64,7 @@ async function runTests() {
   console.log('\n[Test 2] Japanese lookups:');
   const jaWords = ['日本', '学校', '先生', 'gakkou', 'sensei', 'school', 'teacher'];
   for (const q of jaWords) {
-    const res = await lookupWordUnified(q, 'ja', BUNDLED_DICTIONARY_ENTRIES);
+    const res = await lookupWordUnified(q, 'ja', bundledEntries);
     if (!res) throw new Error(`Japanese lookup failed for '${q}'`);
     console.log(`✓ '${q}' -> ${res.word} (${res.reading} / ${res.romanization}): ${res.meanings[0].definitions[0]}`);
   }
@@ -73,7 +73,7 @@ async function runTests() {
   console.log('\n[Test 3] Chinese lookups:');
   const zhWords = ['中国', '学校', '老师', 'xuexiao', 'laoshi', 'china', 'school'];
   for (const q of zhWords) {
-    const res = await lookupWordUnified(q, 'zh', BUNDLED_DICTIONARY_ENTRIES);
+    const res = await lookupWordUnified(q, 'zh', bundledEntries);
     if (!res) throw new Error(`Chinese lookup failed for '${q}'`);
     console.log(`✓ '${q}' -> ${res.word} (${res.reading} / ${res.romanization}): ${res.meanings[0].definitions[0]}`);
   }
@@ -82,22 +82,22 @@ async function runTests() {
   console.log('\n[Test 4] Korean lookups:');
   const koWords = ['한국', '학교', '선생님', 'hakgyo', 'seonsaengnim', 'korea', 'teacher'];
   for (const q of koWords) {
-    const res = await lookupWordUnified(q, 'ko', BUNDLED_DICTIONARY_ENTRIES);
+    const res = await lookupWordUnified(q, 'ko', bundledEntries);
     if (!res) throw new Error(`Korean lookup failed for '${q}'`);
     console.log(`✓ '${q}' -> ${res.word} (${res.reading} / ${res.romanization}): ${res.meanings[0].definitions[0]}`);
   }
 
   // Test 5: Autocomplete Suggestions
   console.log('\n[Test 5] Autocomplete Suggestions:');
-  const jaSugg = await getStructuredWordSuggestions('gak', 'ja', BUNDLED_DICTIONARY_ENTRIES);
+  const jaSugg = await getStructuredWordSuggestions('gak', 'ja', bundledEntries);
   console.log('JA prefix "gak":', jaSugg.map(s => `${s.word} (${s.reading})`).slice(0, 3));
   if (jaSugg.length === 0) throw new Error('No Japanese suggestions for "gak"');
 
-  const zhSugg = await getStructuredWordSuggestions('xue', 'zh', BUNDLED_DICTIONARY_ENTRIES);
+  const zhSugg = await getStructuredWordSuggestions('xue', 'zh', bundledEntries);
   console.log('ZH prefix "xue":', zhSugg.map(s => `${s.word} (${s.reading})`).slice(0, 3));
   if (zhSugg.length === 0) throw new Error('No Chinese suggestions for "xue"');
 
-  const koSugg = await getStructuredWordSuggestions('hak', 'ko', BUNDLED_DICTIONARY_ENTRIES);
+  const koSugg = await getStructuredWordSuggestions('hak', 'ko', bundledEntries);
   console.log('KO prefix "hak":', koSugg.map(s => `${s.word} (${s.reading})`).slice(0, 3));
   if (koSugg.length === 0) throw new Error('No Korean suggestions for "hak"');
 
@@ -105,13 +105,13 @@ async function runTests() {
   console.log('\n[Test 6] Package installation lifecycle:');
   const uninstalled = uninstallCorpusPackage('lang-ko');
   console.log('Uninstalled Korean:', uninstalled);
-  const koAfterUninstall = await lookupWordUnified('학교', 'ko', BUNDLED_DICTIONARY_ENTRIES);
+  const koAfterUninstall = await lookupWordUnified('학교', 'ko', bundledEntries);
   console.log('Lookup after uninstall:', koAfterUninstall ? 'Found' : 'Not Found (expected)');
   if (koAfterUninstall) throw new Error('Korean word should not be found when uninstalled!');
 
   const installRes = await installCorpusPackage('lang-ko');
   console.log(`Re-installed Korean: ${installRes.entriesAdded.toLocaleString()} entries added`);
-  const koAfterReinstall = await lookupWordUnified('학교', 'ko', BUNDLED_DICTIONARY_ENTRIES);
+  const koAfterReinstall = await lookupWordUnified('학교', 'ko', bundledEntries);
   if (!koAfterReinstall) throw new Error('Korean word should be found after re-install!');
   console.log(`Lookup after reinstall: Found '${koAfterReinstall.word}'!`);
 
